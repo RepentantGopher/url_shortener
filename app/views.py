@@ -1,4 +1,4 @@
-from typing import Callable, Awaitable, Union, Any
+from typing import Callable, Awaitable, Union, Any, Dict
 import hashlib
 from urllib.parse import urljoin
 
@@ -13,12 +13,16 @@ View = Callable[[web.Request], Response]
 routes = web.RouteTableDef()
 
 
-async def handle_404(request: web.Request) -> Response:
-    return web.json_response(data={}, status=404)
+@aiohttp_jinja2.template('404.html', status=404)
+async def handle_404(request: web.Request) -> Dict[str, Any]:
+    return {
+        'missing_path': request.path[1:],
+    }
 
 
-async def handle_500(request: web.Request) -> Response:
-    return web.json_response(data={}, status=500)
+@aiohttp_jinja2.template('500.html', status=500)
+async def handle_500(request: web.Request) -> Dict[str, Any]:
+    return {}
 
 
 @routes.get('/{shortened:[0-9a-zA-Z]{8}}')
@@ -33,7 +37,7 @@ async def get_url(request: web.Request) -> Union[Response, web.HTTPFound]:
         return await handle_404(request)
 
 
-@routes.get('/')
+@routes.get('/', name="index")
 @aiohttp_jinja2.template('index.html')
 async def index(request: web.Request) -> Any:
     return {}
@@ -41,7 +45,7 @@ async def index(request: web.Request) -> Any:
 
 @routes.post('/')
 @aiohttp_jinja2.template('index.html')
-async def index(request: web.Request) -> Any:
+async def index(request: web.Request) -> Dict[str, Any]:
     data = await request.post()
     url = data['url']
     hash_object = hashlib.md5(url.encode())
@@ -49,7 +53,8 @@ async def index(request: web.Request) -> Any:
     redis: aioredis.Redis = request.app['redis']
     await redis.set(shortened, url)
     return {
-        'shortened': urljoin(f'http://{request.app["config"].url_root}', shortened)
+        'shortened': urljoin(f'http://{request.app["config"].url_root}', shortened),
+        'index': request.app.router['index'].url_for(),
     }
 
 
