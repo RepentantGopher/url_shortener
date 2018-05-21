@@ -30,7 +30,7 @@ async def get_url(request: web.Request) -> Union[Response, web.HTTPFound]:
     shortened = request.match_info['shortened']
     redis: aioredis.Redis = request.app['redis']
     url = await redis.get(shortened)
-    if url is not None:
+    if url is not None and len(url) > 0:
         return web.HTTPFound(url.decode())
 
     else:

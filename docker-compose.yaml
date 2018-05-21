@@ -1,0 +1,22 @@
+version: '3'
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app.dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - URL_ROOT=localhost:8080
+      - BIND_HOST=0.0.0.0
+      - BIND_PORT=8080
+      - WORKERS_NUMBER=2
