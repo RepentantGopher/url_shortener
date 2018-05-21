@@ -17,3 +17,13 @@ To run this app on local system you must have installed redis database in your s
 ```
 
 Don't forget to change URL_ROOT environment variable if changing BIND_HOST or BIND_PORT!
+
+## Tests
+To run tests for this app you must install pytest on ur local system
+```bash
+    pip install pytest
+```
+then just run it from root
+```bash
+    PYTHONPATH=. pytest
+```

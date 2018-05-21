@@ -1,5 +1,4 @@
 from typing import Callable, Awaitable, Union, Any, Dict
-import hashlib
 from urllib.parse import urljoin
 
 from aiohttp import web
@@ -8,6 +7,7 @@ import aiohttp_jinja2
 from marshmallow.exceptions import ValidationError
 
 from app.schema import IndexSchema
+from app.utils import shorten_url
 
 
 Response = Awaitable[web.Response]
@@ -61,8 +61,7 @@ async def index(request: web.Request) -> Dict[str, Any]:
 
     else:
         url = parsed['url']
-        hash_object = hashlib.md5(url.encode())
-        shortened = hash_object.hexdigest()[:8]
+        shortened = shorten_url(url)
         redis: aioredis.Redis = request.app['redis']
         await redis.set(shortened, url)
         return {

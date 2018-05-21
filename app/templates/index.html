@@ -11,6 +11,7 @@
                        name="url"
                        {% if posted_url is defined %} value="{{ posted_url }}" {% endif %}
                        placeholder="URL to short">
+
                 {% if errors is defined %}
                     {% for error in errors %}
                         <div class="invalid-feedback">
