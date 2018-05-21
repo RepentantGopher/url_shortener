@@ -15,3 +15,5 @@ To run this app on local system you must have installed redis database in your s
     pip install -r requirements.txt
     PYTHONPATH=. python app/main.py
 ```
+
+Don't forget to change URL_ROOT environment variable if changing BIND_HOST or BIND_PORT!

@@ -4,17 +4,25 @@
 
 {% block content %}
     {% if not shortened %}
-    <form action="/" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <input class="form-control"
-                   id="url"
-                   name="url"
-                   placeholder="URL to short">
-        </div>
-        <button type="submit" class="btn btn-primary">Shorten It!</button>
-    </form>
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <input class="form-control {% if errors is defined %} is-invalid {% endif %}"
+                       id="url"
+                       name="url"
+                       {% if posted_url is defined %} value="{{ posted_url }}" {% endif %}
+                       placeholder="URL to short">
+                {% if errors is defined %}
+                    {% for error in errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Shorten It!</button>
+        </form>
     {% else %}
-    <p class="text-justify">Your new shiny url is <a href="{{ shortened }}">{{ shortened }}</a></p>
-    <p class="text-justify"><a href="{{ index }}">Want to shorten another one?</a></p>
+        <p class="text-justify">Your new shiny url is <a href="{{ shortened }}">{{ shortened }}</a></p>
+        <p class="text-justify"><a href="{{ index }}">Want to shorten another one?</a></p>
     {% endif %}
 {% endblock %}

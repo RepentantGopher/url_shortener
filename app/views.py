@@ -5,6 +5,9 @@ from urllib.parse import urljoin
 from aiohttp import web
 import aioredis
 import aiohttp_jinja2
+from marshmallow.exceptions import ValidationError
+
+from app.schema import IndexSchema
 
 
 Response = Awaitable[web.Response]
@@ -47,15 +50,25 @@ async def index(request: web.Request) -> Any:
 @aiohttp_jinja2.template('index.html')
 async def index(request: web.Request) -> Dict[str, Any]:
     data = await request.post()
-    url = data['url']
-    hash_object = hashlib.md5(url.encode())
-    shortened = hash_object.hexdigest()[:8]
-    redis: aioredis.Redis = request.app['redis']
-    await redis.set(shortened, url)
-    return {
-        'shortened': urljoin(f'http://{request.app["config"].url_root}', shortened),
-        'index': request.app.router['index'].url_for(),
-    }
+    try:
+        parsed, _ = IndexSchema().load(data)
+
+    except ValidationError as err:
+        return {
+            "errors": err.messages['url'],
+            "posted_url": data.get('url', "")
+        }
+
+    else:
+        url = parsed['url']
+        hash_object = hashlib.md5(url.encode())
+        shortened = hash_object.hexdigest()[:8]
+        redis: aioredis.Redis = request.app['redis']
+        await redis.set(shortened, url)
+        return {
+            'shortened': urljoin(f'http://{request.app["config"].url_root}', shortened),
+            'index': request.app.router['index'].url_for(),
+        }
 
 
 def setup_routes(app: web.Application):

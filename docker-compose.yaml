@@ -16,7 +16,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - URL_ROOT=localhost:8080
+      - URL_ROOT=0.0.0.0:8080
       - BIND_HOST=0.0.0.0
       - BIND_PORT=8080
       - WORKERS_NUMBER=2
